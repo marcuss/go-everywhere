@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: myapp
+  name: marco-polo  # Updated the deployment name
   namespace: default  # Or replace with the namespace you use
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: myapp
+      app: marco-polo
   template:
     metadata:
       labels:
-        app: myapp
+        app: marco-polo
     spec:
       containers:
-        - name: myapp
+        - name: marco-polo
           image: marcuss/go-everywhere:latest
           ports:
             - containerPort: 80
