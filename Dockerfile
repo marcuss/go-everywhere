@@ -10,8 +10,8 @@ COPY go.mod go.sum ./
 # Download all dependencies
 RUN go mod download
 
-# Copy the source code
-COPY . .
+# Copy the source code from the 'scr' directory
+COPY scr/ .
 
 # Build the Go app
 RUN go build -o main .
