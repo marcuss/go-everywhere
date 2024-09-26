@@ -4,29 +4,37 @@ FROM golang:1.23-alpine AS builder
 # Set the Current Working Directory inside the container
 WORKDIR /app
 
-# Copy the Go Modules files
+# Copy the Go modules files
 COPY go.mod go.sum ./
 
-# Download all dependencies. Dependencies will be cached if the go.mod and go.sum files are not changed
+# Download all dependencies
 RUN go mod download
 
-# Copy the source from the current directory to the Working Directory inside the container
+# Copy the source code
 COPY . .
 
 # Build the Go app
 RUN go build -o main .
 
 # Use a smaller base image to reduce the size of the final image
-FROM alpine:latest
+FROM alpine:3.15
+
+# Install CA certificates
+RUN apk add --no-cache ca-certificates
 
 # Set the Current Working Directory inside the container
 WORKDIR /root/
 
-# Copy the Pre-built binary file from the previous stage
+# Copy the pre-built binary file from the previous stage
 COPY --from=builder /app/main .
 
-# Expose port 8080 to the outside world
-EXPOSE 8080
+# Copy TLS certificate and key files
+COPY certs/cert.pem /etc/ssl/certs/cert.pem
+COPY certs/key.pem /etc/ssl/private/key.pem
+
+# Expose ports 80 and 443
+EXPOSE 80
+EXPOSE 443
 
 # Command to run the executable
 CMD ["./main"]
