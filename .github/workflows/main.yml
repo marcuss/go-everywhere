@@ -1,0 +1,27 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-steps.yml
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ always() }}  # Ensure this job only runs if the build workflow succeeded
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set image URI
+        run: echo "IMAGE_URI=${{ needs.build.outputs.image }}" >> $GITHUB_ENV
+
+      - name: Deploy to EKS
+        uses: ./.github/workflows/deploy-steps.yml
+        with:
+          image: ${{ needs.build.outputs.image }}

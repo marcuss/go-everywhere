@@ -1,12 +1,11 @@
-name: Build and Push to ECR
+name: Build and Push to ECR Steps
 
 on:
-  push:
-    branches:
-      - main  # or any branch you want to trigger the build from
+  workflow_call:
+    secrets: inherit
 
 jobs:
-  build: # <-- This is the job ID `build`
+  build:
     runs-on: ubuntu-latest
     permissions:
       id-token: write  # allows creation of an OIDC token
