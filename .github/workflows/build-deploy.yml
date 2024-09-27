@@ -38,12 +38,18 @@ jobs:
 #          # Push the image to Docker Hub
 #          docker push $REPOSITORY_URI:$IMAGE_TAG
 #
-      - name: Set up AWS CLI
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::246386308913:role/eks-federated-deployer
-          role-session-name: eks-deployer-temporal-session
-          aws-region: ${{ secrets.AWS_REGION }}
+#      - name: Set up AWS CLI
+#        uses: aws-actions/configure-aws-credentials@v4
+#        with:
+#          role-to-assume: arn:aws:iam::246386308913:role/eks-federated-deployer
+#          role-session-name: eks-deployer-temporal-session
+#          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Configure AWS Credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ${{ secrets.AWS_REGION }}
 
       - name: Install kubectl
         run: |
