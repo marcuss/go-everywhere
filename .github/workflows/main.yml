@@ -10,6 +10,13 @@ jobs:
     permissions:
       id-token: write  # allows creation of an OIDC token
       contents: read
+    steps:
+      - name: Set ENV Variables
+        run: echo "Setting ENV variables"
+        env:
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
     uses: ./.github/workflows/build-steps.yml
 
   deploy:
