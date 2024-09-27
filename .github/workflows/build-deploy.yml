@@ -51,7 +51,7 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
-      - name: Create kubeconfig directory
+      - name: Create kube-config directory
         run: mkdir -p $HOME/.kube
 
       - name: Decode and set kubeconfig
@@ -59,8 +59,10 @@ jobs:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         run: |
           echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
-          export KUBECONFIG=$HOME/.kube/config  # Ensure kubectl uses the decoded kubeconfig file
-          echo "KUBECONFIG set to $HOME/.kube/config"
+        shell: bash
+
+      - name: Set KUBECONFIG environment variable
+        run: echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
 
       # Verifying the AWS CLI configuration and testing the kubeconfig
       - name: Validate AWS Configuration
