@@ -72,7 +72,7 @@ jobs:
         run: pwd
 
       - name: List files and directories in the current directory
-        run: ls -la
+        run: ls -R
       - name: Deploy to EKS
         run: |
           cd k8s
