@@ -54,6 +54,7 @@ jobs:
           export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
           export IMAGE_TAG=${{ needs.build.outputs.image }}
           envsubst < k8s/deployment.yaml | tee k8s/deployment-resolved.yaml
+        #needs.build.outputs.image reads the variable image from the previously run job 'build'
 
       - name: Check Installation
         run: |
