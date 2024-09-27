@@ -91,4 +91,5 @@ jobs:
           sleep 10
           
           # View pod start-up logs
+          echo "First 20 seconds of Start-up Logs"
           kubectl logs -l app=marco-polo
