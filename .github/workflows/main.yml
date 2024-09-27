@@ -6,10 +6,7 @@ on:
       - main
 
 jobs:
-  build:
-    permissions:
-      id-token: write  # allows creation of an OIDC token
-      contents: read
+  set-environment:
     steps:
       - name: Set ENV Variables
         run: echo "Setting ENV variables"
@@ -17,12 +14,16 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+
+  build:
+    permissions:
+      id-token: write  # allows creation of an OIDC token
+      contents: read
     uses: ./.github/workflows/build-steps.yml
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
-    if: ${{ always() }}  # Ensure this job only runs if the build workflow succeeded
 
     steps:
       - name: Checkout code
