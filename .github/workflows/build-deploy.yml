@@ -56,16 +56,29 @@ jobs:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         run: |
           echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
-          cat kubeconfig  # Check if the kubeconfig is correctly decoded
           export KUBECONFIG=$(pwd)/kubeconfig  # Ensure kubectl uses the decoded kubeconfig file
+          echo "KUBECONFIG set to $(pwd)/kubeconfig"
 
-      - name: Test kubectl configuration
+      # Verifying the AWS CLI configuration and testing the kubeconfig
+      - name: Validate AWS Configuration
+        shell: bash
         run: |
-          kubectl cluster-info  # This will verify if the kubeconfig is set correctly
+          which aws
+          aws --version
+          aws sts get-caller-identity
+
+      - name: Validate kubeconfig and Test kubectl Configuration
+        run: |
+          # Print the kubeconfig file content
+          cat $(pwd)/kubeconfig
+          # Test kubectl configuration
+          kubectl config get-contexts
+          kubectl config use-context arn:aws:eks:us-east-1:246386308913:cluster/eks-cluster
+          kubectl cluster-info
 
       - name: Update Kubernetes deployment
         env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+          #KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
           DOCKER_IMAGE_URI: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
           K8S_DEPLOYMENT_NAME: ${{ secrets.K8S_DEPLOYMENT_NAME }}
           K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
