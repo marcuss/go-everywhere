@@ -17,6 +17,7 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
 
   build:
+    needs: set-environment
     permissions:
       id-token: write  # allows creation of an OIDC token
       contents: read
