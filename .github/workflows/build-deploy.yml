@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      #contents: read
 
     steps:
       - name: Checkout code
@@ -52,13 +51,13 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
-      - name: Decode and set kubeconfig
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-        run: |
-          echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
-          cat kubeconfig  # Add this line to check if the kubeconfig is correctly decoded
-          export KUBECONFIG=kubeconfig
+     # - name: Decode and set kubeconfig
+     #   env:
+     #     KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+     #   run: |
+     #     echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
+     #     cat kubeconfig  # Add this line to check if the kubeconfig is correctly decoded
+     #     export KUBECONFIG=kubeconfig
 
       - name: Update Kubernetes deployment
         env:
@@ -67,8 +66,4 @@ jobs:
           K8S_DEPLOYMENT_NAME: ${{ secrets.K8S_DEPLOYMENT_NAME }}
           K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
         run: |
-          echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
-          export KUBECONFIG=kubeconfig
-
-          # Update the Kubernetes deployment to use the new Docker image
           kubectl set image deployment/$K8S_DEPLOYMENT_NAME *=$DOCKER_IMAGE_URI -n $K8S_NAMESPACE
