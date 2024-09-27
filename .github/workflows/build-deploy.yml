@@ -38,56 +38,46 @@ jobs:
 #          # Push the image to Docker Hub
 #          docker push $REPOSITORY_URI:$IMAGE_TAG
 #
-#      - name: Set up AWS CLI
-#        uses: aws-actions/configure-aws-credentials@v4
-#        with:
-#          role-to-assume: arn:aws:iam::246386308913:role/eks-federated-deployer
-#          role-session-name: eks-deployer-temporal-session
-#          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::246386308913:role/eks-federated-deployer
+          role-session-name: eks-deployer-temporal-session
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Configure AWS Credentials
-        run: |
-          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws configure set default.region ${{ secrets.AWS_REGION }}
+#      - name: Configure AWS Credentials
+#        run: |
+#          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          aws configure set default.region ${{ secrets.AWS_REGION }}
 
       - name: Install kubectl
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
+          kubectl version
 
       - name: Create kube-config directory
         run: mkdir -p $HOME/.kube
 
       - name: Decode and set kubeconfig
-        env:
-          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         run: |
-          echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
         shell: bash
 
-      - name: Set KUBECONFIG environment variable
-        run: echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
+#      - name: Set KUBECONFIG environment variable
+#        run: echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
 
-      # Verifying the AWS CLI configuration and testing the kubeconfig
       - name: Validate AWS Configuration
         run: |
           which aws
           aws --version
           aws sts get-caller-identity
 
-      - name: Verify AWS Configuration
-        run: aws sts get-caller-identity  # Check AWS CLI setup
-
-
-      - name: Print current working directory
-        run: pwd
-
-      - name: List files and directories in the current directory
-        run: ls -R
       - name: Deploy to EKS
         run: kubectl apply --validate=false -f k8s/deployment.yaml
+
 #      - name: Validate kubeconfig and Test kubectl Configuration
 #        run: |
 #          # Print the kubeconfig file content
