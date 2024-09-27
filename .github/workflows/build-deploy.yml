@@ -51,13 +51,17 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
-     # - name: Decode and set kubeconfig
-     #   env:
-     #     KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-     #   run: |
-     #     echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
-     #     cat kubeconfig  # Add this line to check if the kubeconfig is correctly decoded
-     #     export KUBECONFIG=kubeconfig
+      - name: Decode and set kubeconfig
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        run: |
+          echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
+          cat kubeconfig  # Check if the kubeconfig is correctly decoded
+          export KUBECONFIG=$(pwd)/kubeconfig  # Ensure kubectl uses the decoded kubeconfig file
+
+      - name: Test kubectl configuration
+        run: |
+          kubectl cluster-info  # This will verify if the kubeconfig is set correctly
 
       - name: Update Kubernetes deployment
         env:
