@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: marco-polo  # Updated the deployment name
-  namespace: default  # Or replace with the namespace you use
+  name: marco-polo-deployment
+  #namespace: don0t use it here, only at deploy time
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: marco-polo
+      app: marco-polo-app  # Ensure this label matches with template.labels
   template:
     metadata:
       labels:
-        app: marco-polo
+        app: marco-polo-app  # Labels must match for proper pod management
     spec:
       containers:
-        - name: marco-polo
-          image: marcuss/go-everywhere:latest
+        - name: marco-polo-container
+          image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
           ports:
             - containerPort: 80
             - containerPort: 443
