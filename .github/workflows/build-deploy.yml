@@ -10,34 +10,34 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Build
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-
-      - name: Build, tag, and push image to Docker Hub
-        env:
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
-          DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
-        run: |
-          IMAGE_TAG=latest
-          REPOSITORY_URI=${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPOSITORY}
-
-          # Build the Docker image
-          docker build -t $REPOSITORY_URI:$IMAGE_TAG .
-
-          # Push the image to Docker Hub
-          docker push $REPOSITORY_URI:$IMAGE_TAG
-
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Set up Docker Build
+#        uses: docker/setup-buildx-action@v3
+#
+#      - name: Log in to Docker Hub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+#          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+#
+#      - name: Build, tag, and push image to Docker Hub
+#        env:
+#          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+#          DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
+#        run: |
+#          IMAGE_TAG=latest
+#          REPOSITORY_URI=${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPOSITORY}
+#
+#          # Build the Docker image
+#          docker build -t $REPOSITORY_URI:$IMAGE_TAG .
+#
+#          # Push the image to Docker Hub
+#          docker push $REPOSITORY_URI:$IMAGE_TAG
+#
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v4
         with:
