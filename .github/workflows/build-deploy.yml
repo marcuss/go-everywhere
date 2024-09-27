@@ -50,14 +50,6 @@ jobs:
 #          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
 #          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 #          aws configure set default.region ${{ secrets.AWS_REGION }}
-
-      - name: Install kubectl
-        run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
-          kubectl version
-
       - name: Create kube-config directory
         run: mkdir -p $HOME/.kube
 
@@ -65,6 +57,13 @@ jobs:
         run: |
           echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
         shell: bash
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          kubectl version
 
 #      - name: Set KUBECONFIG environment variable
 #        run: echo "KUBECONFIG=$HOME/.kube/config" >> $GITHUB_ENV
