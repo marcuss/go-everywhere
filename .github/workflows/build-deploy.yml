@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
-      contents: read
+      #contents: read
 
     steps:
       - name: Checkout code
@@ -43,7 +43,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::246386308913:role/eks-federated-deployer
-          role-session-name: eksdeployersession
+          role-session-name: eks-deployer-temporal-session
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install kubectl
@@ -51,6 +51,14 @@ jobs:
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
+
+      - name: Decode and set kubeconfig
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+        run: |
+          echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
+          cat kubeconfig  # Add this line to check if the kubeconfig is correctly decoded
+          export KUBECONFIG=kubeconfig
 
       - name: Update Kubernetes deployment
         env:
