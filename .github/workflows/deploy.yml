@@ -5,8 +5,6 @@ on:
     workflows: ["Build and Push to ECR"]
     types:
       - completed
-    branches:
-      - main  # or any branch you want to trigger the deployment from
 
 jobs:
   deploy:
@@ -14,7 +12,7 @@ jobs:
     permissions:
       id-token: write # allows creation of an OIDC token
       contents: read
-
+    if: ${{ success() }}  # Ensure this job only runs if the build workflow succeeded
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -47,15 +45,18 @@ jobs:
           aws --version
           aws sts get-caller-identity
 
+      - name: Create dev namespace if it doesn't exist   # Namespace Creation Step
+        run: |
+          kubectl get namespace dev || kubectl create namespace dev
+
       - name: Replace environment variables in Kubernetes manifest
         run: |
           export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
           export AWS_REGION=${{ secrets.AWS_REGION }}
           export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
-          export IMAGE_TAG=${{ needs.build.outputs.image }}
+          export IMAGE_TAG=${{ github.event.workflow_run.outputs.image }}  
           envsubst < k8s/deployment.yaml | tee k8s/deployment-resolved.yaml
-        #needs.build.outputs.image reads the variable image from the previously run job 'build'
-
+        # github.event.workflow_run.outputs.image Access output from the upstream workflow
       - name: Check Installation
         run: |
           kubectl get pods -l app=marco-polo-app --namespace=dev
