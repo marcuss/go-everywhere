@@ -51,17 +51,19 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
+      - name: Create kubeconfig directory
+        run: mkdir -p $HOME/.kube
+
       - name: Decode and set kubeconfig
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
         run: |
-          echo "$KUBE_CONFIG_DATA" | base64 --decode > kubeconfig
-          export KUBECONFIG=$(pwd)/kubeconfig  # Ensure kubectl uses the decoded kubeconfig file
-          echo "KUBECONFIG set to $(pwd)/kubeconfig"
+          echo "$KUBE_CONFIG_DATA" | base64 --decode > $HOME/.kube/config
+          export KUBECONFIG=$HOME/.kube/config  # Ensure kubectl uses the decoded kubeconfig file
+          echo "KUBECONFIG set to $HOME/.kube/config"
 
       # Verifying the AWS CLI configuration and testing the kubeconfig
       - name: Validate AWS Configuration
-        shell: bash
         run: |
           which aws
           aws --version
@@ -70,7 +72,7 @@ jobs:
       - name: Validate kubeconfig and Test kubectl Configuration
         run: |
           # Print the kubeconfig file content
-          cat $(pwd)/kubeconfig
+          cat $HOME/.kube/config
           # Test kubectl configuration
           kubectl config get-contexts
           kubectl config use-context arn:aws:eks:us-east-1:246386308913:cluster/eks-cluster
