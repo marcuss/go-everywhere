@@ -4,7 +4,7 @@ metadata:
   name: marco-polo  # Updated the deployment name
   namespace: default  # Or replace with the namespace you use
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: marco-polo

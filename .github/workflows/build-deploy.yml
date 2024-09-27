@@ -87,9 +87,8 @@ jobs:
           # Describe the deployment in detail
           kubectl describe deployment marco-polo
           
-          # Wait for 10 seconds
-          sleep 10
-          
-          # View pod start-up logs
-          echo "First 20 seconds of Start-up Logs"
-          kubectl logs -l app=marco-polo
+      - name: Check Pod Status
+        run: |
+          echo "Waiting for pods to be in running state..."
+          kubectl get pods -l app=marco-polo
+          kubectl wait --for=condition=Ready pod -l app=marco-polo --timeout=120s
