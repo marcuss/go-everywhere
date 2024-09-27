@@ -69,20 +69,23 @@ jobs:
           aws --version
           aws sts get-caller-identity
 
-      - name: Validate kubeconfig and Test kubectl Configuration
-        run: |
-          # Print the kubeconfig file content
-          cat $HOME/.kube/config
-          # Test kubectl configuration
-          kubectl config get-contexts
-          kubectl config use-context arn:aws:eks:us-east-1:246386308913:cluster/eks-cluster
-          kubectl cluster-info
+      - name: Deploy to EKS
+        run: kubectl apply -f k8s/deployment.yaml
 
-      - name: Update Kubernetes deployment
-        env:
-          #KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
-          DOCKER_IMAGE_URI: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
-          K8S_DEPLOYMENT_NAME: ${{ secrets.K8S_DEPLOYMENT_NAME }}
-          K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
-        run: |
-          kubectl set image deployment/$K8S_DEPLOYMENT_NAME *=$DOCKER_IMAGE_URI -n $K8S_NAMESPACE
+#      - name: Validate kubeconfig and Test kubectl Configuration
+#        run: |
+#          # Print the kubeconfig file content
+#          cat $HOME/.kube/config
+#          # Test kubectl configuration
+#          kubectl config get-contexts
+#          kubectl config use-context arn:aws:eks:us-east-1:246386308913:cluster/eks-cluster
+#          kubectl cluster-info
+#
+#      - name: Update Kubernetes deployment
+#        env:
+#          #KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
+#          DOCKER_IMAGE_URI: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPOSITORY }}:latest
+#          K8S_DEPLOYMENT_NAME: ${{ secrets.K8S_DEPLOYMENT_NAME }}
+#          K8S_NAMESPACE: ${{ secrets.K8S_NAMESPACE }}
+#        run: |
+#          kubectl set image deployment/$K8S_DEPLOYMENT_NAME *=$DOCKER_IMAGE_URI -n $K8S_NAMESPACE
