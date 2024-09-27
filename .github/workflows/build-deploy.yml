@@ -81,11 +81,11 @@ jobs:
         run: aws sts get-caller-identity  # Check AWS CLI setup
 
 
-      - name: Verify kubectl Configuration
-        run: |
-          kubectl config view  # Show kubectl config
-          kubectl config current-context  # Show current context
-          kubectl get nodes  # List Kubernetes nodes to verify connection
+#      - name: Verify kubectl Configuration
+#        run: |
+#          kubectl config view  # Show kubectl config
+#          kubectl config current-context  # Show current context
+#          kubectl get nodes  # List Kubernetes nodes to verify connection
 
       - name: Generate Kubernetes Deployments
         env:
