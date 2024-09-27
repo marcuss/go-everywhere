@@ -76,13 +76,30 @@ jobs:
           which aws
           aws --version
           aws sts get-caller-identity
-      - name: Print current working directory
-        run: pwd
 
-      - name: List files and directories in the current directory
-        run: ls -R
+      - name: Verify AWS Configuration
+        run: aws sts get-caller-identity  # Check AWS CLI setup
+
+
+      - name: Verify kubectl Configuration
+        run: |
+          kubectl config view  # Show kubectl config
+          kubectl config current-context  # Show current context
+          kubectl get nodes  # List Kubernetes nodes to verify connection
+
+      - name: Generate Kubernetes Deployments
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_REPOSITORY: ${{ secrets.DOCKER_HUB_REPOSITORY }}
+          IMAGE_TAG: latest
+        run: |
+          cat k8s/deployment.yaml.template | envsubst > k8s/deployment.yaml
+          cat k8s/service.yaml.template | envsubst > k8s/service.yaml
+
       - name: Deploy to EKS
-        run: kubectl apply --validate=false -f k8s/deployment.yaml
+        run: |
+          kubectl apply --validate=false -f k8s/deployment.yaml
+          kubectl apply --validate=false -f k8s/service.yaml
 #      - name: Validate kubeconfig and Test kubectl Configuration
 #        run: |
 #          # Print the kubeconfig file content
