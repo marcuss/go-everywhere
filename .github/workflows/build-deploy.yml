@@ -74,9 +74,7 @@ jobs:
       - name: List files and directories in the current directory
         run: ls -R
       - name: Deploy to EKS
-        run: |
-          cd k8s
-          kubectl apply -f deployment.yaml
+        run: kubectl apply -f k8s/deployment.yaml
 #      - name: Validate kubeconfig and Test kubectl Configuration
 #        run: |
 #          # Print the kubeconfig file content
