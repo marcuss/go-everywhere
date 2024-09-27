@@ -6,10 +6,10 @@ on:
       - main
 
 jobs:
-  permissions:
-    id-token: write  # allows creation of an OIDC token
-    contents: read
   build:
+    permissions:
+      id-token: write  # allows creation of an OIDC token
+      contents: read
     uses: ./.github/workflows/build-steps.yml
 
   deploy:
