@@ -41,7 +41,7 @@ jobs:
         with:
           role-to-assume: arn:aws:iam::246386308913:role/eks-federated-deployer
           role-session-name: eksdeployersession
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ secrets.AWS_REGION }}
       - name: Install kubectl
         run: |
           curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
