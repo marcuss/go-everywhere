@@ -1,5 +1,8 @@
 name: Deploy to EKS Steps
 
+on:
+  workflow_call:
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

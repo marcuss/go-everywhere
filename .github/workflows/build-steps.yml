@@ -1,5 +1,8 @@
 name: Build and Push to ECR Steps
 
+on:
+  workflow_call:
+
 jobs:
   build:
     runs-on: ubuntu-latest
