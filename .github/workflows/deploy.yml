@@ -9,10 +9,10 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # Ensure this job only runs if the build workflow succeeded
     permissions:
       id-token: write # allows creation of an OIDC token
       contents: read
-    if: ${{ success() }}  # Ensure this job only runs if the build workflow succeeded
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
