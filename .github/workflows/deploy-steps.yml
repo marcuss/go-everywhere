@@ -1,9 +1,5 @@
 name: Deploy to EKS Steps
 
-on:
-  workflow_call:
-    secrets: inherit
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
