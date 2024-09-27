@@ -66,7 +66,7 @@ jobs:
       - name: Check Pod Status
         run: |
           echo "Waiting for pods to be in running state..."
-          kubectl get pods -l app=marco-polo-app --namespace=production
+          kubectl get pods -l app=marco-polo-app --namespace=dev
           kubectl wait --for=condition=Ready pod -l app=marco-polo-app --namespace=dev --timeout=120s
 
 
