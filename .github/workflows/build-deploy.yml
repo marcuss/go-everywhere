@@ -68,7 +68,11 @@ jobs:
           which aws
           aws --version
           aws sts get-caller-identity
+      - name: Print current working directory
+        run: pwd
 
+      - name: List files and directories in the current directory
+        run: ls -la
       - name: Deploy to EKS
         run: |
           cd k8s
