@@ -37,7 +37,6 @@ jobs:
         run: |
           kubectl port-forward svc/my-service 9090:8080 -n default &
         shell: bash
-        background: true
 
       - name: Test Service Accessibility
         run: |
