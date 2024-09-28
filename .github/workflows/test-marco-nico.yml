@@ -1,0 +1,44 @@
+name: Forward Port for Local Testing
+
+on:
+  workflow_dispatch:
+
+jobs:
+  port-forward:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::YOUR_ROLE
+          role-session-name: port-forward-session
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Create kube-config directory
+        run: mkdir -p $HOME/.kube
+
+      - name: Decode and set kubeconfig
+        run: |
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
+        shell: bash
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          kubectl version
+
+      - name: Port Forward Service
+        run: |
+          nohup kubectl port-forward svc/my-service 9090:8080 -n default &
+        shell: bash
+        background: true
+
+      - name: Test Service Accessibility
+        run: |
+          curl http://localhost:80/play/marco
