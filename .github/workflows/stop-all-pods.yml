@@ -6,6 +6,9 @@ on:
 jobs:
   stop-pods:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # allows creation of an OIDC token
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
