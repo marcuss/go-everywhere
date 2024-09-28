@@ -94,9 +94,10 @@ jobs:
           aws --version
           aws sts get-caller-identity
 
-      - name: Create dev namespace if it doesn't exist
-        run: |
-          kubectl get namespace dev || kubectl create namespace dev
+#      - name: Create dev namespace if it doesn't exist
+#        run: |
+#          kubectl get namespace dev || kubectl create namespace dev
+#        using custom namespaces requires creating files with Kubernetes Role-Based Access Control definitions
 
       - name: Replace environment variables in Kubernetes manifest
         run: |
@@ -108,14 +109,14 @@ jobs:
 
       - name: Check Installation
         run: |
-          kubectl get pods -l app=marco-polo-app --namespace=dev
-          kubectl describe deployment marco-polo-deployment --namespace=dev
+          kubectl get pods -l app=marco-polo-app
+          kubectl describe deployment marco-polo-deployment
 
       - name: Deploy to EKS
-        run: kubectl apply --validate=false -f k8s/deployment-resolved.yaml --namespace=dev
+        run: kubectl apply --validate=false -f k8s/deployment-resolved.yaml
 
       - name: Check Pod Status
         run: |
           echo "Waiting for pods to be in running state..."
-          kubectl get pods -l app=marco-polo-app --namespace=dev
-          kubectl wait --for=condition=Ready pod -l app=marco-polo-app --namespace=dev --timeout=120s
+          kubectl get pods -l app=marco-polo-app
+          kubectl wait --for=condition=Ready pod -l app=marco-polo-app --timeout=120s
