@@ -16,8 +16,8 @@ jobs:
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::YOUR_ROLE
-          role-session-name: port-forward-session
+          role-to-assume: arn:aws:iam::246386308913:role/eks-federated-deployer
+          role-session-name: eks-deployer-testing
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Create kube-config directory
