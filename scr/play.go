@@ -13,7 +13,7 @@ func play(w http.ResponseWriter, req *http.Request) {
 
 	// Case-insensitive comparison
 	if strings.EqualFold(word, "marco") {
-		fmt.Fprintf(w, "Polo\n")
+		fmt.Fprintf(w, "Nico\n")
 	} else {
 		// Return error code 400 and the same word as body
 		http.Error(w, word, http.StatusBadRequest)

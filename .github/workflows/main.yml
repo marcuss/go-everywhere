@@ -110,11 +110,11 @@ jobs:
 
       - name: Check Installation
         run: |
-          kubectl get pods -l app=marco-polo-app
-          kubectl describe deployment marco-polo
+          kubectl get pods -l app=marco-nico-app
+          kubectl describe deployment marco-nico
 
 #      - name: Check Pod Status
 #        run: |
 #          echo "Waiting for pods to be in running state..."
-#          kubectl get pods -l app=marco-polo-app
-#          kubectl wait --for=condition=Ready pod -l app=marco-polo-app --timeout=120s
+#          kubectl get pods -l app=marco-nico-app
+#          kubectl wait --for=condition=Ready pod -l app=marco-nico-app --timeout=120s

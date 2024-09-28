@@ -1,20 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: marco-polo
+  name: marco-nico
   #namespace: don't use it here, only at deploy time
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: marco-polo-app  # Ensure this label matches with template.labels
+      app: marco-nico-app  # Ensure this label matches with template.labels
   template:
     metadata:
       labels:
-        app: marco-polo-app  # Labels must match for proper pod management
+        app: marco-nico-app  # Labels must match for proper pod management
     spec:
       containers:
-        - name: marco-polo-container
+        - name: marco-nico-container
           image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:latest
           ports:
             - containerPort: 80
