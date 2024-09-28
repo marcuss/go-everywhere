@@ -2,8 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: marco-nico-service
-  # Optional: Use this if you want to deploy to a specific namespace
-  # namespace: your-namespace
+  namespace: default
 spec:
   selector:
     app: marco-nico-app

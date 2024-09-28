@@ -1,4 +1,4 @@
-name: Stop All Pods
+name: Stop and Delete Pods and Service
 
 on:
   workflow_dispatch:
@@ -35,13 +35,14 @@ jobs:
           sudo mv kubectl /usr/local/bin/
           kubectl version
 
-      - name: Stop all pods by scaling down deployments and statefulsets
+      - name: Stop the marco-nico pods by scaling down the deployment
         run: |
-          for ns in $(kubectl get namespaces -o jsonpath="{.items[*].metadata.name}"); do
-            for deploy in $(kubectl get deployments -n $ns -o jsonpath="{.items[*].metadata.name}"); do
-              kubectl scale deployment $deploy --replicas=0 -n $ns;
-            done;
-            for sts in $(kubectl get statefulsets -n $ns -o jsonpath="{.items[*].metadata.name}"); do
-              kubectl scale statefulset $sts --replicas=0 -n $ns;
-            done;
-          done
+          kubectl scale deployment marco-nico --replicas=0 -n default
+
+      - name: Delete the marco-nico deployment
+        run: |
+          kubectl delete deployment marco-nico -n default
+
+      - name: Delete the marco-nico service
+        run: |
+          kubectl delete service marco-nico-service -n default
