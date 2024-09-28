@@ -1,8 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: marco-polo-deployment
-  #namespace: don0t use it here, only at deploy time
+  name: marco-polo
+  #namespace: don't use it here, only at deploy time
 spec:
   replicas: 1
   selector:
