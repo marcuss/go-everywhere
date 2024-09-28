@@ -6,6 +6,8 @@ on:
 jobs:
   port-forward:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # allows creation of an OIDC token
 
     steps:
       - name: Checkout code
