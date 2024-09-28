@@ -109,7 +109,7 @@ jobs:
         run: kubectl apply --validate=false -f k8s/deployment-resolved.yaml
 
       - name: Deploy Service
-        run: kubectl apply -f service.yaml
+        run: kubectl apply --validate=false -f k8s/service.yaml
 
       - name: Check Installation
         run: |
