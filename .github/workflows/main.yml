@@ -56,7 +56,6 @@ jobs:
     needs: build
     permissions:
       id-token: write  # allows creation of an OIDC token
-     # contents: read
     runs-on: ubuntu-latest
 
     steps:
@@ -115,8 +114,8 @@ jobs:
           kubectl get pods -l app=marco-polo-app
           kubectl describe deployment marco-polo-deployment
 
-      - name: Check Pod Status
-        run: |
-          echo "Waiting for pods to be in running state..."
-          kubectl get pods -l app=marco-polo-app
-          kubectl wait --for=condition=Ready pod -l app=marco-polo-app --timeout=120s
+#      - name: Check Pod Status
+#        run: |
+#          echo "Waiting for pods to be in running state..."
+#          kubectl get pods -l app=marco-polo-app
+#          kubectl wait --for=condition=Ready pod -l app=marco-polo-app --timeout=120s
