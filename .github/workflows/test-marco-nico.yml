@@ -35,10 +35,11 @@ jobs:
 
       - name: Port Forward Service
         run: |
-          nohup kubectl port-forward svc/my-service 9090:8080 -n default &
+          kubectl port-forward svc/my-service 9090:8080 -n default &
         shell: bash
         background: true
 
       - name: Test Service Accessibility
         run: |
+          sleep 10
           curl http://localhost:80/play/marco
