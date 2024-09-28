@@ -1,4 +1,4 @@
-name: Forward Port for Local Testing
+name: Test Application
 
 on:
   workflow_dispatch:
