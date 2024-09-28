@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: marco-nico-service
+  # Optional: Use this if you want to deploy to a specific namespace
+  # namespace: your-namespace
+spec:
+  selector:
+    app: marco-nico-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+    - protocol: TCP
+      port: 443
+      targetPort: 443
+      nodePort: 30080  # Choose a port in the range 30000-32767
+  type: NodePort
