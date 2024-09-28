@@ -7,6 +7,9 @@ on:
 
 jobs:
   build:
+    permissions:
+      id-token: write  # allows creation of an OIDC token
+      #contents: read
     runs-on: ubuntu-latest
 
     steps:
@@ -51,6 +54,9 @@ jobs:
 
   deploy:
     needs: build
+    permissions:
+      id-token: write  # allows creation of an OIDC token
+     # contents: read
     runs-on: ubuntu-latest
 
     steps:
