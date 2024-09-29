@@ -1,0 +1,27 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "iam:PassRole",
+        "iam:*Get*",
+        "iam:*List*",
+        "s3:*Get*",
+        "s3:*List*",
+        "s3:*Describe*",
+        "eks:*",
+        "ecr:*",
+        "ec2:*",
+        "route53:*",
+        "logs:*",
+        "cloudformation:*",
+        "cloudwatch:*",
+        "autoscaling:*",
+        "elasticloadbalancing:*",
+        "access-analyzer:ListPolicyGenerations"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
