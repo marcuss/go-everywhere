@@ -119,14 +119,13 @@ aws cloudformation create-stack \
     ```
   This creates the role and attach the trust policy in the mentioned file to it, which basically creates a role and allows the Fargate Profile to assume it.
 
-
-
 -   Attach the Fargate Policy:
 
     ```sh
-    aws iam attach-role-policy \
-      --policy-arn arn:aws:iam::aws:policy/AmazonEKSFargatePodExecutionRolePolicy \
-      --role-name AmazonEKSFargatePodExecutionRole
+    aws iam put-role-policy \
+    --role-name eks-fargate-runner-role \
+    --policy-name eks-cluster-admin-permissions-policy \
+    --policy-document file://eks-cluster-admin-permissions-policy.json
     ```
 
 - Create Fargate Profile in EKS Console:
