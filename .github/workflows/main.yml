@@ -92,11 +92,6 @@ jobs:
           aws --version
           aws sts get-caller-identity
 
-#      - name: Create dev namespace if it doesn't exist
-#        run: |
-#          kubectl get namespace dev || kubectl create namespace dev
-#        using custom namespaces requires creating files with Kubernetes Role-Based Access Control definitions
-
       - name: Replace environment variables in Kubernetes manifest
         run: |
           export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
