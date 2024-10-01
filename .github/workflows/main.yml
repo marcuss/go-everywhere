@@ -23,6 +23,9 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           mask-aws-account-id: true
 
+      - name: Debug Caller Identity
+        run: aws sts get-caller-identity
+
       - name: Assume actual deployer role
         uses: aws-actions/configure-aws-credentials@v4
         with:
