@@ -19,6 +19,15 @@ jobs:
           role-to-assume: arn:aws:iam::246386308913:role/eks-federated-deployer
           role-session-name: eks-deployer-temporal-session
           aws-region: ${{ secrets.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Assume actual deployer role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/eks-deployer
+          role-session-name: eks-deployer-temporal-session
+          role-chaining: true
 
       - name: Create kube-config directory
         run: mkdir -p $HOME/.kube

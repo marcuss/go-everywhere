@@ -15,12 +15,21 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up AWS CLI
+      - name: Authenticate with OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/eks-federated-deployer
-          role-session-name: eks-deployer-temporal-session
+          role-session-name: federated-role-temporal-session
           aws-region: ${{ secrets.AWS_REGION }}
+          mask-aws-account-id: true
+
+      - name: Assume actual deployer role
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/eks-deployer
+          role-session-name: eks-deployer-temporal-session
+          role-chaining: true
 
       - name: Debug Caller Identity
         run: aws sts get-caller-identity
@@ -73,6 +82,7 @@ jobs:
           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/eks-federated-deployer
           role-session-name: eks-deployer-temporal-session
           aws-region: ${{ secrets.AWS_REGION }}
+          mask-aws-account-id: true
 
       - name: Create kube-config directory
         run: mkdir -p $HOME/.kube
