@@ -17,43 +17,38 @@ jobs:
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::246386308913:role/eks-federated-deployer
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/new-eks-deployer
           role-session-name: eks-deployer-testing
           aws-region: ${{ secrets.AWS_REGION }}
           mask-aws-account-id: true
 
-      - name: Assume actual deployer role
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/eks-deployer
-          role-session-name: eks-deployer-temporal-session
-          role-chaining: true
-
-      - name: Debug Caller Identity
-        run: aws sts get-caller-identity
-
-      - name: Create kube-config directory
-        run: mkdir -p $HOME/.kube
-
-      - name: Decode and set kubeconfig
+      - name: Validate AWS Configuration
         run: |
-          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
-        shell: bash
-
-      - name: Install kubectl
-        run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x kubectl
-          sudo mv kubectl /usr/local/bin/
-          kubectl version
-
-      - name: Port Forward Service
-        run: |
-          kubectl port-forward svc/my-service 9090:8080 -n default &
-        shell: bash
-
-      - name: Test Service Accessibility
-        run: |
-          sleep 10
-          curl http://localhost:80/play/marco
+          which aws
+          aws --version
+          aws sts get-caller-identity
+#
+#      - name: Create kube-config directory
+#        run: mkdir -p $HOME/.kube
+#
+#      - name: Decode and set kubeconfig
+#        run: |
+#          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
+#        shell: bash
+#
+#      - name: Install kubectl
+#        run: |
+#          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+#          chmod +x kubectl
+#          sudo mv kubectl /usr/local/bin/
+#          kubectl version
+#
+#      - name: Port Forward Service
+#        run: |
+#          kubectl port-forward svc/my-service 9090:8080 -n default &
+#        shell: bash
+#
+#      - name: Test Service Accessibility
+#        run: |
+#          sleep 10
+#          curl http://localhost:80/play/marco
