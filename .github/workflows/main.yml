@@ -113,3 +113,22 @@ jobs:
         run: |
           kubectl get pods -l app=marco-nico-app
           kubectl describe deployment marco-nico
+
+      - name: Wait for LoadBalancer IP
+        id: get_lb
+        run: |
+          echo "Waiting for LoadBalancer to be provisioned..."
+          while true; do
+              LB_HOSTNAME=$(kubectl get svc marco-nico-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+              if [ ! -z "$LB_HOSTNAME" ]; then
+                  echo "LB_HOSTNAME=$LB_HOSTNAME" >> $GITHUB_ENV
+                  break
+              fi
+              echo "Still waiting..."
+              sleep 10
+          done
+          echo "Application is accessible at http://$LB_HOSTNAME"
+
+      - name: Output LoadBalancer Hostname
+        run: |
+          echo "LoadBalancer Hostname: ${{ env.LB_HOSTNAME }}"

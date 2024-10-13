@@ -11,10 +11,8 @@ spec:
       protocol: TCP
       port: 80
       targetPort: 80
-      nodePort: 30080  # Choose a port in the range 30000-32767
     - name: https
       protocol: TCP
       port: 443
       targetPort: 443
-      nodePort: 30443  # Choose a port in the range 30000-32767
-  type: NodePort
+  type: LoadBalancer

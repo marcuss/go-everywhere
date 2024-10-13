@@ -9,7 +9,7 @@ Or a more straight forward version, continue reading.
 ## Step 1: Create Cluster Admin User
 - With an admin access user go to IAM and create a user named: `eks-cluster-admin`
 - Create a password and give it access to the AWS console login. if asked click on only create IAM user.
-- Select attach inline policy in this file: [here](./eks-cluster-admin-permissions-policy.json)
+- Select attach inline policy in this file: [here](../policies/eks-cluster-admin-permissions-policy.json)
 
   Which adds plenty of permissions to the `eks-cluster-admin` user to perform almost every action possible.
     Best practices suggest fewer permissions and this is not a policy you should use in production.

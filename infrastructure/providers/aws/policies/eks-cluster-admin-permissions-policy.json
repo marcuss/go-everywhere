@@ -4,10 +4,7 @@
     {
       "Effect": "Allow",
       "Action": [
-        "iam:PutRolePolicy",
-        "iam:PassRole",
-        "iam:*Get*",
-        "iam:*List*",
+        "iam:*",
         "s3:*Get*",
         "s3:*List*",
         "s3:*Describe*",
@@ -20,11 +17,10 @@
         "cloudwatch:*",
         "autoscaling:*",
         "elasticloadbalancing:*",
-        "access-analyzer:ListPolicyGenerations",
-        "eks-auth:AssumeRoleForPodIdentity",
+        "access-analyzer:*",
+        "eks-auth:*",
         "logs:*",
-        "kms:DescribeKey",
-        "iam:DetachRolePolicy"
+        "kms:*"
       ],
       "Resource": "*"
     }
