@@ -24,7 +24,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           mask-aws-account-id: true
 
-      - name: Set up Docker Build|
+      - name: Set up Docker Build
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Amazon ECR
@@ -70,9 +70,17 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
           mask-aws-account-id: true
 
+      - name: Generate kubeconfig for EKS
+        env:
+          CLUSTER_NAME: my-eks-cluster # Replace with your EKS cluster name
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION --kubeconfig ./kubeconfig
+          base64 ./kubeconfig > kubeconfig_base64.txt
+
       - name: Decode and set kubeconfig
         run: |
-          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 --decode > $HOME/.kube/config
+          cat kubeconfig_base64.txt | base64 --decode > $HOME/.kube/config
         shell: bash
 
       - name: Install kubectl
@@ -93,7 +101,7 @@ jobs:
           export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
           export AWS_REGION=${{ secrets.AWS_REGION }}
           export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
-          export IMAGE_TAG=${{ github.event.inputs.image }}  
+          export IMAGE_TAG=${{ github.sha }}
           envsubst < k8s/deployment.yaml | tee k8s/deployment-resolved.yaml
 
       - name: Deploy Deployment
