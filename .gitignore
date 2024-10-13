@@ -26,3 +26,7 @@ go.work.sum
 /.idea/modules.xml
 /.idea/vcs.xml
 /.idea/go-everywhere.iml
+infrastructure/.terraform.lock.hcl
+/infrastructure/.terraform
+infrastructure/terraform.tfstate.backup
+infrastructure/terraform.tfstate
