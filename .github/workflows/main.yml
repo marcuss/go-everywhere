@@ -80,6 +80,7 @@ jobs:
 
       - name: Decode and set kubeconfig
         run: |
+          mkdir -p $HOME/.kube
           cat kubeconfig_base64.txt | base64 --decode > $HOME/.kube/config
         shell: bash
 
