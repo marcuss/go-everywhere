@@ -76,7 +76,7 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
           aws eks update-kubeconfig --name my-cluster --region $AWS_REGION --kubeconfig ./kubeconfig
-          base64 ./kubeconfig > kubeconfig_base64.txt
+          base64 -i ./kubeconfig > kubeconfig_base64.txt
 
       - name: Decode and set kubeconfig
         run: |
@@ -91,12 +91,6 @@ jobs:
           sudo mv kubectl /usr/local/bin/
           kubectl version
 
-      - name: Validate AWS Configuration
-        run: |
-          which aws
-          aws --version
-          aws sts get-caller-identity
-
       - name: Replace environment variables in Kubernetes manifest
         run: |
           export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
@@ -106,13 +100,13 @@ jobs:
           envsubst < k8s/deployment.yaml | tee k8s/deployment-resolved.yaml
 
       - name: Deploy Deployment
-        run: kubectl apply --validate=false -f k8s/deployment-resolved.yaml
+        run: kubectl apply --validate=false -f infrastructure/k8s/deployment-resolved.yaml
 
       - name: Deploy Service
-        run: kubectl apply --validate=false -f k8s/service.yaml
+        run: kubectl apply --validate=false -f infrastructure/k8s/service.yaml
 
       - name: Deploy Service
-        run: kubectl apply --validate=false -f k8s/fargate-test-pod-deployment.yaml
+        run: kubectl apply --validate=false -f infrastructure/k8s/fargate-test-pod-deployment.yaml
 
       - name: Check Installation
         run: |
