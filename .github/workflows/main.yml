@@ -97,7 +97,7 @@ jobs:
           export AWS_REGION=${{ secrets.AWS_REGION }}
           export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
           export IMAGE_TAG=${{ github.sha }}
-          envsubst < k8s/deployment.yaml | tee k8s/deployment-resolved.yaml
+          envsubst < infrastructure/k8s/deployment.yaml | tee infrastructure/k8s/deployment-resolved.yaml
 
       - name: Deploy Deployment
         run: kubectl apply --validate=false -f infrastructure/k8s/deployment-resolved.yaml

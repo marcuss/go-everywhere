@@ -19,6 +19,7 @@
         "elasticloadbalancing:*",
         "access-analyzer:*",
         "eks-auth:*",
+        "sts:AssumeRole",
         "logs:*",
         "kms:*"
       ],
