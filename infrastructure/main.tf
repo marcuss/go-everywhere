@@ -64,56 +64,7 @@ module "eks" {
       ]
     }
   }
-/*  eks_managed_node_groups = {
-    one = {
-      name           = "node-group-1"
-      instance_types = ["t3.small"]
-      min_size       = 1
-      max_size       = 3
-      desired_size   = 2
-      iam_role_name  = aws_iam_role.eks_node_role.name
-    }
-    two = {
-      name = "node-group-2"
-      instance_types = ["t3.small"]
-      min_size       = 1
-      max_size       = 2
-      desired_size   = 1
-      iam_role_name  = aws_iam_role.eks_node_role.name
-    }
-  }*/
 }
-
-/*
-# Define the IAM role for EKS nodes
-resource "aws_iam_role" "eks_node_role" {
-  name = "eks-node-role"
-
-  assume_role_policy = jsonencode({
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "Service": "ec2.amazonaws.com"
-        },
-        "Action": "sts:AssumeRole"
-      }
-    ]
-  })
-}
-
-# Attach necessary policies to the IAM role
-resource "aws_iam_role_policy_attachment" "eks_worker_node" {
-  for_each = {
-    AmazonEKSWorkerNodePolicy               = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-    AmazonEKS_CNI_Policy                    = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-    AmazonEC2ContainerRegistryReadOnly      = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  }
-
-  role       = aws_iam_role.eks_node_role.name
-  policy_arn = each.value
-}*/
 
 # Create an IAM OIDC provider for GitHub
 resource "aws_iam_openid_connect_provider" "github" {
@@ -154,6 +105,12 @@ resource "aws_iam_role_policy" "eks_federated_deployer_policy" {
   name   = "eks-federated-deployer-policy"        # Name of the policy
   role   = aws_iam_role.eks_federated_deployer.id # The IAM role to attach the policy to
   policy = file("providers/aws/policies/eks-deployer-permissions.json")  # Load permissions from a local file
+}
+
+# Create the EKS cluster auth mapping for the IAM role
+resource "aws_eks_cluster_auth" "eks_federated_deployer_auth" {
+  cluster_name = module.eks.cluster_id
+  role_arn     = aws_iam_role.eks_federated_deployer.arn
 }
 
 # Outputs for convenience
