@@ -33,6 +33,39 @@ module "vpc" {
   }
 }
 
+# Create the IAM role for Fargate pod execution
+resource "aws_iam_role" "fargate_pod_execution_role" {
+  name = "fargate_pod_execution_role"
+  assume_role_policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Service": "eks-fargate.amazonaws.com"
+        },
+        "Action": "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+# Attach the needed policies to the Fargate pod execution role
+resource "aws_iam_role_policy_attachment" "fargate_ec2_container_registry_readonly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.fargate_pod_execution_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+  role       = aws_iam_role.fargate_pod_execution_role.name
+}
+
+resource "aws_iam_role_policy_attachment" "eks_vpc_resource_controller" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
+  role       = aws_iam_role.fargate_pod_execution_role.name
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.26.0"
@@ -53,7 +86,8 @@ module "eks" {
   # Define Fargate profile
   fargate_profiles = {
     default = {
-      name = "default"
+      name                = "default"
+      pod_execution_role  = aws_iam_role.fargate_pod_execution_role.name
       selectors = [
         {
           namespace = "default"

@@ -28,9 +28,8 @@ WORKDIR /root/
 # Copy the pre-built binary file from the previous stage
 COPY --from=builder /app/main .
 
-# Copy TLS certificate and key files
-COPY certs/cert.pem /etc/ssl/certs/cert.pem
-COPY certs/key.pem /etc/ssl/private/key.pem
+# Copy the entirety of the certs folder to ensure all needed certificates are available
+COPY certs/ /etc/ssl/certs/
 
 # Expose ports 80 and 443
 EXPOSE 80
