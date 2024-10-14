@@ -29,7 +29,7 @@ WORKDIR /root/
 COPY --from=builder /app/main .
 
 # Copy the entirety of the certs folder to ensure all needed certificates are available
-COPY certs/ /etc/ssl/certs/
+COPY certs/ certs/
 
 # Expose ports 80 and 443
 EXPOSE 80
