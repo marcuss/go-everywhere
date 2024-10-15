@@ -102,7 +102,7 @@ module "eks" {
 
 # Define IAM Role for EC2 nodes
 resource "aws_iam_role" "eks-federated-deployer" {
-  name = "eks-node-role"
+  name = "eks-federated-deployer"
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
