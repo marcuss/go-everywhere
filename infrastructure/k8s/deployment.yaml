@@ -12,6 +12,7 @@ spec:
     metadata:
       labels:
         app: marco-nico-app  # Labels must match for proper pod management
+        run-on-fargate: "true"  # This label ensures the pod runs on Fargate
     spec:
       containers:
         - name: marco-nico-container

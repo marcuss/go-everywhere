@@ -17,11 +17,10 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "5.13.0"  # Use a compatible version
 
-  name = "vpc"
-  cidr = "10.0.0.0/16"
-
-  azs             = local.selected_azs
-  public_subnets  = local.public_subnet_cidrs
+  name           = "vpc"
+  cidr           = "10.0.0.0/16"
+  azs            = local.selected_azs
+  public_subnets = local.public_subnet_cidrs
   private_subnets = local.private_subnet_cidrs
 
   enable_nat_gateway = true
@@ -33,7 +32,7 @@ module "vpc" {
   }
 }
 
-# Create the IAM role for Fargate pod execution
+# IAM Role for Fargate pod execution
 resource "aws_iam_role" "fargate_pod_execution_role" {
   name = "fargate_pod_execution_role"
   assume_role_policy = jsonencode({
@@ -83,42 +82,41 @@ module "eks" {
     Terraform   = "true"
   }
 
-  # Define Fargate profile
+  # Define Fargate profile for other pods
   fargate_profiles = {
-    default = {
-      name                = "default"
+    # Define Fargate profile for pods marked with the 'run-on-fargate=true' label
+    custom_fargate_profile = {
+      name                = "custom-fargate-profile"
       pod_execution_role  = aws_iam_role.fargate_pod_execution_role.name
       selectors = [
         {
           namespace = "default"
-        },
-        {
-          namespace = "kube-system"
+          labels = {
+            run-on-fargate = "true"
+          }
         }
       ]
     }
   }
 }
 
-# Create an IAM OIDC provider for GitHub
-resource "aws_iam_openid_connect_provider" "github" {
-  url = "https://token.actions.githubusercontent.com" # OIDC provider URL for GitHub
-
-  client_id_list = ["sts.amazonaws.com"] # Audience for the OIDC tokens
-
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"] # This is actually not currently used by AWS, specially Github OIDC does validate without a thumbprint
-}
-
-# Create the IAM role with trust policy
-resource "aws_iam_role" "eks_federated_deployer" {
-  name               = "eks-federated-deployer"  # Role name
+# Define IAM Role for EC2 nodes
+resource "aws_iam_role" "eks-federated-deployer" {
+  name = "eks-node-role"
   assume_role_policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
       {
         "Effect": "Allow",
         "Principal": {
-          "Federated": aws_iam_openid_connect_provider.github.arn  # Link directly to OIDC provider ARN
+          "Service": "ec2.amazonaws.com"
+        },
+        "Action": "sts:AssumeRole"
+      },
+      {
+        "Effect": "Allow",
+        "Principal": {
+          "Federated": aws_iam_openid_connect_provider.github.arn
         },
         "Action": "sts:AssumeRoleWithWebIdentity",
         "Condition": {
@@ -134,23 +132,63 @@ resource "aws_iam_role" "eks_federated_deployer" {
   })
 }
 
-# Attach permissions policy to the IAM role
-resource "aws_iam_role_policy" "eks_federated_deployer_policy" {
-  name   = "eks-federated-deployer-policy"        # Name of the policy
-  role   = aws_iam_role.eks_federated_deployer.id # The IAM role to attach the policy to
-  policy = file("providers/aws/policies/eks-deployer-permissions.json")  # Load permissions from a local file
+# Attach policies to the IAM role for EC2 nodes
+resource "aws_iam_role_policy_attachment" "eks_worker_node_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  role       = aws_iam_role.eks-federated-deployer.name
 }
 
-# Create the EKS cluster auth mapping for the IAM role
-resource "aws_eks_cluster_auth" "eks_federated_deployer_auth" {
-  cluster_name = module.eks.cluster_id
-  role_arn     = aws_iam_role.eks_federated_deployer.arn
+resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+  role       = aws_iam_role.eks-federated-deployer.name
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_container_registry_read_only" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.eks-federated-deployer.name
+}
+
+# Attach additional policies for the GitHub Actions
+resource "aws_iam_role_policy" "eks_node_deployer_policy" {
+  name   = "eks-node-deployer-policy"
+  role   = aws_iam_role.eks-federated-deployer.id
+  policy = file("providers/aws/policies/eks-deployer-permissions.json")
+}
+
+# Define EC2 nodes group using separate resource block
+resource "aws_eks_node_group" "system" {
+  cluster_name    = module.eks.cluster_name
+  node_group_name = "regular-nodes"
+  node_role_arn   = aws_iam_role.eks-federated-deployer.arn
+  subnet_ids      = module.vpc.private_subnets
+
+  scaling_config {
+    desired_size = 2
+    max_size     = 3
+    min_size     = 1
+  }
+
+  instance_types = ["t3.small"]
+
+  tags = {
+    Name        = "regular-nodes"
+    Environment = "dev"
+  }
+}
+
+# Create an IAM OIDC provider for GitHub
+resource "aws_iam_openid_connect_provider" "github" {
+  url = "https://token.actions.githubusercontent.com" # OIDC provider URL for GitHub
+
+  client_id_list = ["sts.amazonaws.com"] # Audience for the OIDC tokens
+
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"] # This is actually not currently used by AWS, specially Github OIDC does validate without a thumbprint
 }
 
 # Outputs for convenience
 output "eks_federated_deployer_role_name" {
   description = "The name of the IAM role for EKS federated deployer"
-  value       = aws_iam_role.eks_federated_deployer.name # Output the role name
+  value       = aws_iam_role.eks-federated-deployer.name # Output the role name
 }
 
 output "cluster_endpoint" {
