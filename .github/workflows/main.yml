@@ -70,7 +70,7 @@ jobs:
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/eks-federated-deployer
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/eks-node-role
           role-session-name: eks-deployer-temporal-session
           aws-region: ${{ secrets.AWS_REGION }}
           mask-aws-account-id: true
