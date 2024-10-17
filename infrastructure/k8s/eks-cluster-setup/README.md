@@ -9,7 +9,7 @@ Or a more straight forward version, continue reading.
 ## Step 1: Create Cluster Admin User
 - With an admin access user go to IAM and create a user named: `eks-cluster-admin`
 - Create a password and give it access to the AWS console login. if asked click on only create IAM user.
-- Select attach inline policy in this file: [here](../policies/eks-cluster-admin-permissions-policy.json)
+- Select attach inline policy in this file: [here](../../providers/aws/eks/policies/eks-cluster-admin-permissions-policy.json)
 
   Which adds plenty of permissions to the `eks-cluster-admin` user to perform almost every action possible.
     Best practices suggest fewer permissions and this is not a policy you should use in production.
@@ -44,7 +44,7 @@ After this command is run, the user in the answer must be the same as the user y
 Now with users set, lets start building, execute the following:
 ```sh
 aws cloudformation create-stack \
-  --region us-east-1 \
+  --region us-east-2 \
   --stack-name eks-vpc-stack \
   --template-url https://s3.us-west-2.amazonaws.com/amazon-eks/cloudformation/2020-10-29/amazon-eks-vpc-private-subnets.yaml
 ```
@@ -88,7 +88,7 @@ aws cloudformation create-stack \
 1. Update kubeconfig:
 
     ```sh
-    aws eks update-kubeconfig --region us-east-1 --name eks-cluster
+    aws eks update-kubeconfig --region us-east-2 --name eks-cluster
     ```
 
 2. Verify configuration:

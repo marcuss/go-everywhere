@@ -65,7 +65,7 @@ Go to the settings tab on the repo, and click on Secrets and Variables and click
 Set the following secrets:
 
 AWS_ACCOUNT_ID: 12 digits number of the aws account being used.
-AWS_REGION: us-east-1
+AWS_REGION: us-east-2
 ECR_REPOSITORY: take the uri from the previous steo to create the ecr repo.
 
 Step 3: The KUBE_CONFIG_DATA secret

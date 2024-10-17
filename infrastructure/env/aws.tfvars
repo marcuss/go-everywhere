@@ -1,0 +1,6 @@
+github_user = "marcuss"
+github_repo = "go-everywhere"
+aws_region          = "us-east-2"
+environment         = "dev"
+aws_eks_cluster_name    = "my-cluster"
+aws_eks_cluster_version = "1.31"
