@@ -110,9 +110,6 @@ jobs:
       - name: Deploy Service
         run: kubectl apply --validate=false -f infrastructure/k8s/service.yaml
 
-      - name: Deploy additional resources
-        run: kubectl apply --validate=false -f infrastructure/k8s/fargate-test-pod-deployment.yaml
-
       - name: Check Installation
         run: |
           kubectl get pods -l app=marco-nico-app

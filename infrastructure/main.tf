@@ -7,9 +7,9 @@ data "aws_availability_zones" "available" {}
 
 # Local values to limit to the first 3 availability zones and dynamically create subnets
 locals {
-  selected_azs = slice(data.aws_availability_zones.available.names, 0, 3)
+  selected_azs = slice(data.aws_availability_zones.available.names, 0, 2) # EKS clusters need at least 2 AZs
 
-  public_subnet_cidrs = [for i in range(length(local.selected_azs)) : cidrsubnet("10.0.0.0/16", 8, i)]
+  public_subnet_cidrs  = [for i in range(length(local.selected_azs)) : cidrsubnet("10.0.0.0/16", 8, i)]
   private_subnet_cidrs = [for i in range(length(local.selected_azs)) : cidrsubnet("10.0.0.0/16", 8, i + 10)]
 }
 
@@ -146,9 +146,51 @@ resource "aws_iam_role_policy" "eks_federated_deployer_policy" {
 }
 
 # Example of adding an access entry to an IAM role without Kubernetes RBAC
-resource "aws_eks_access_entry" "example" {
+#See https://towardsaws.com/enhancing-eks-access-control-ditch-the-aws-auth-configmap-for-access-entry-91683b47e6fc
+##see https://github.com/awsdocs/amazon-eks-user-guide/blob/7766e46223c75febc3301645bfdcf06f4146a8a7/doc_source/access-policies.md
+# aws eks list-access-policies --output table
+resource "aws_eks_access_entry" "eks_federated_deployer_access_entry" {
   cluster_name      = module.eks.cluster_name
   principal_arn     = aws_iam_role.eks_federated_deployer.arn
   kubernetes_groups = []  # No Kubernetes groups used
   type              = "STANDARD"
+}
+
+# Associate AmazonEKSAdminPolicy
+resource "aws_eks_access_policy_association" "admin_policy" {
+  cluster_name  = module.eks.cluster_name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+  principal_arn = aws_iam_role.eks_federated_deployer.arn
+
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_iam_role.eks_federated_deployer]
+}
+
+# Associate AmazonEKSAdminViewPolicy
+resource "aws_eks_access_policy_association" "admin_view_policy" {
+  cluster_name  = module.eks.cluster_name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+  principal_arn = aws_iam_role.eks_federated_deployer.arn
+
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_iam_role.eks_federated_deployer]
+}
+
+# Associate AmazonEKSClusterPolicy
+resource "aws_eks_access_policy_association" "cluster_policy" {
+  cluster_name  = module.eks.cluster_name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+  principal_arn = aws_iam_role.eks_federated_deployer.arn
+
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_iam_role.eks_federated_deployer]
 }
