@@ -13,6 +13,11 @@ resource "aws_iam_role" "fargate_pod_execution_role" {
       }
     ]
   })
+
+  tags = {
+    business_unit = var.business_unit
+    environment   = var.environment
+  }
 }
 
 # Attach the needed policies to the Fargate pod execution role
@@ -43,5 +48,10 @@ resource "aws_eks_fargate_profile" "custom_fargate_profile" {
     labels = {
       run-on-fargate = "true"
     }
+  }
+
+  tags = {
+    business_unit = var.business_unit
+    environment   = var.environment
   }
 }

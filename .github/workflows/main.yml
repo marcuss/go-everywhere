@@ -77,10 +77,10 @@ jobs:
 
       - name: Generate kubeconfig for EKS
         env:
-          CLUSTER_NAME: my-cluster # Replace with your EKS cluster name
+          CLUSTER_NAME: dev-cluster # Replace with your EKS cluster name
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          aws eks update-kubeconfig --name my-cluster --region $AWS_REGION --kubeconfig ./kubeconfig
+          aws eks update-kubeconfig --name dev-cluster --region $AWS_REGION --kubeconfig ./kubeconfig
           base64 -i ./kubeconfig > kubeconfig_base64.txt
 
       - name: Decode and set kubeconfig

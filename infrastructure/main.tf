@@ -12,14 +12,16 @@ provider "aws" {
 # }
 
 module "aws_eks" {
-  source       = "./providers/aws/eks"
-  region       = var.aws_region
-  github_user  = var.github_user
-  github_repo  = var.github_repo
-  environment  = var.environment
-  cluster_name = var.aws_eks_cluster_name
-  cluster_version = var.aws_eks_cluster_version
-  cloud_provider  = "aws"
+  source                 = "./providers/aws"
+  region                 = var.aws_region
+  github_user            = var.github_user
+  github_repo            = var.github_repo
+  environment            = var.environment
+  cluster_name           = var.aws_eks_cluster_name
+  cluster_version        = var.aws_eks_cluster_version
+  cloud_provider         = "aws"
+  business_unit          = var.business_unit
+  local_machine_aws_user = var.local_machine_aws_user
 }
 
 # module "azure_aks" {

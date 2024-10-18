@@ -48,4 +48,12 @@ variable "gcp_region" {
   type        = string
 }
 
-# Add other GCP-specific variables as needed
+variable "business_unit" {
+  description = "Prefix or value to tag resources"
+  type        = string
+}
+
+variable "local_machine_aws_user" {
+  description = "Local machine AWS Cli user, to allow to assume the federated deployer role"
+  type        = string
+}

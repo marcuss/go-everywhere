@@ -12,8 +12,8 @@ import (
 )
 
 func main() {
-	// Register the play handler for the /play/ path
-	http.HandleFunc("/play/", play)
+	// Register the play handler for the / path
+	http.HandleFunc("/", play)
 
 	// Create HTTP server
 	httpServer := &http.Server{

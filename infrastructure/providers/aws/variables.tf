@@ -13,6 +13,11 @@ variable "github_repo" {
   type        = string
 }
 
+variable "local_machine_aws_user" {
+  description = "Local machine AWS Cli user, to allow to assume the federated deployer role"
+  type        = string
+}
+
 variable "environment" {
   description = "The environment name (e.g., dev, staging, prod)"
   type        = string
@@ -30,5 +35,10 @@ variable "cluster_version" {
 
 variable "cloud_provider" {
   description = "Cloud provider name"
+  type        = string
+}
+
+variable "business_unit" {
+  description = "Prefix or value to tag resources"
   type        = string
 }
