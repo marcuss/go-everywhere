@@ -1,3 +1,10 @@
+# Define a variable for the local AWS user
+variable "local_machine_aws_user" {
+  description = "The name of the local machine's AWS user"
+  type        = string
+}
+
+
 variable "environment" {
   description = "The environment name (e.g., dev, staging, prod)"
   type        = string
@@ -50,10 +57,5 @@ variable "gcp_region" {
 
 variable "business_unit" {
   description = "Prefix or value to tag resources"
-  type        = string
-}
-
-variable "local_machine_aws_user" {
-  description = "Local machine AWS Cli user, to allow to assume the federated deployer role"
   type        = string
 }

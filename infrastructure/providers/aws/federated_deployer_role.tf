@@ -1,5 +1,10 @@
-
+# Data source to get caller identity
 data "aws_caller_identity" "current" {}
+
+# Define a local value for the AWS user ARN
+locals {
+  local_aws_user_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${var.local_machine_aws_user}"
+}
 
 # IAM Role for GitHub Actions
 resource "aws_iam_role" "eks_federated_deployer" {
@@ -26,7 +31,7 @@ resource "aws_iam_role" "eks_federated_deployer" {
         "Sid": "Statement1",
         "Effect": "Allow",
         "Principal": {
-          "AWS": "arn:aws:iam::${data.aws_caller_identity.current.account_id}:user/${var.local_machine_aws_user}"
+          "AWS": local.local_aws_user_arn
         },
         "Action": [
           "sts:AssumeRole"
@@ -70,20 +75,19 @@ resource "aws_eks_access_entry" "eks_federated_deployer_access_entry" {
   ]
 }
 
-# Associate AmazonEKSAdminPolicy TODO: remove if a deployment succeed with out this
-# resource "aws_eks_access_policy_association" "eks_admin_policy" {
-#   cluster_name  = module.eks.cluster_name
-#   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
-#   principal_arn = aws_iam_role.eks_federated_deployer.arn
-#
-#   access_scope {
-#     type = "cluster"
-#   }
-#
-#   depends_on = [aws_eks_access_entry.eks_federated_deployer_access_entry]
-# }
-#
-# # Associate AmazonEKSAdminViewPolicy
+resource "aws_eks_access_policy_association" "federated_deployer_eks_admin_policy" {
+  cluster_name  = module.eks.cluster_name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+  principal_arn = aws_iam_role.eks_federated_deployer.arn
+
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_eks_access_entry.eks_federated_deployer_access_entry]
+}
+
+# # Associate AmazonEKSAdminViewPolicy  TODO: remove if deployment succeeds without this
 # resource "aws_eks_access_policy_association" "cluster_admin_policy" {
 #   cluster_name  = module.eks.cluster_name
 #   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
@@ -97,10 +101,34 @@ resource "aws_eks_access_entry" "eks_federated_deployer_access_entry" {
 # }
 
 # Associate AmazonEKSClusterPolicy
-resource "aws_eks_access_policy_association" "cluster_policy" {
+# resource "aws_eks_access_policy_association" "cluster_policy" {
+#   cluster_name  = module.eks.cluster_name
+#   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+#   principal_arn = aws_iam_role.eks_federated_deployer.arn
+#
+#   access_scope {
+#     type = "cluster"
+#   }
+#
+#   depends_on = [aws_eks_access_entry.eks_federated_deployer_access_entry]
+# }
+
+resource "aws_eks_access_entry" "local_user_access_entry" {
+  cluster_name      = module.eks.cluster_name
+  principal_arn     = local.local_aws_user_arn
+  kubernetes_groups = [] # No Kubernetes groups used
+  type              = "STANDARD"
+
+  depends_on = [
+    module.eks,
+    aws_iam_role_policy.eks_federated_deployer_policy
+  ]
+}
+
+resource "aws_eks_access_policy_association" "local_aws_user_eks_admin_policy" {
   cluster_name  = module.eks.cluster_name
-  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
-  principal_arn = aws_iam_role.eks_federated_deployer.arn
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+  principal_arn = local.local_aws_user_arn
 
   access_scope {
     type = "cluster"
