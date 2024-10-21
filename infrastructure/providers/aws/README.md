@@ -1,0 +1,1 @@
+For destroying terraform resources first destroy all deployments created in Kubernetes otherwise the destroy can find itself in a loop trying to delete vpc, subnets etc, that can not be deleted because theare things like load balancer created by kubernetes deployment that haas not been deleted.

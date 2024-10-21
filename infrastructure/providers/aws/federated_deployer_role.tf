@@ -87,32 +87,6 @@ resource "aws_eks_access_policy_association" "federated_deployer_eks_admin_polic
   depends_on = [aws_eks_access_entry.eks_federated_deployer_access_entry]
 }
 
-# # Associate AmazonEKSAdminViewPolicy  TODO: remove if deployment succeeds without this
-# resource "aws_eks_access_policy_association" "cluster_admin_policy" {
-#   cluster_name  = module.eks.cluster_name
-#   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
-#   principal_arn = aws_iam_role.eks_federated_deployer.arn
-#
-#   access_scope {
-#     type = "cluster"
-#   }
-#
-#   depends_on = [aws_eks_access_entry.eks_federated_deployer_access_entry]
-# }
-
-# Associate AmazonEKSClusterPolicy
-# resource "aws_eks_access_policy_association" "cluster_policy" {
-#   cluster_name  = module.eks.cluster_name
-#   policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
-#   principal_arn = aws_iam_role.eks_federated_deployer.arn
-#
-#   access_scope {
-#     type = "cluster"
-#   }
-#
-#   depends_on = [aws_eks_access_entry.eks_federated_deployer_access_entry]
-# }
-
 resource "aws_eks_access_entry" "local_user_access_entry" {
   cluster_name      = module.eks.cluster_name
   principal_arn     = local.local_aws_user_arn
