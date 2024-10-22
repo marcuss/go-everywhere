@@ -18,7 +18,7 @@ spec:
         - name: ecr-secret
       containers:
         - name: marco-nico-container
-          image: ${IMAGE_URI}
+          image: 246386308913.dkr.ecr.us-east-2.amazonaws.com/marcuss:latest
           ports:
             - containerPort: 80
             - containerPort: 443

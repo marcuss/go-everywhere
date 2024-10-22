@@ -1,14 +1,16 @@
 name: CI/CD Pipeline
 
+#on:
+#  push:
+#    branches:
+#      - main
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   build:
     permissions:
-      id-token: write  # allows creation of an OIDC token
+      id-token: write
       contents: read
     runs-on: ubuntu-latest
 
@@ -28,8 +30,12 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Amazon ECR
-        id: login-ecr # <-- This is the job ID `build`
+        id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Store ECR Login Password
+        id: ecr-password
+        run: echo "password=$(aws ecr get-login-password --region ${{ secrets.AWS_REGION }})" >> $GITHUB_ENV
 
       - name: Build, tag, and push image to ECR
         env:
@@ -53,9 +59,11 @@ jobs:
 
     outputs:
       image: ${{ steps.image-details.outputs.image }}
+      ecr-login-password: ${{ steps.ecr-password.outputs.password }}
 
   aws_deploy:
     needs: build
+    if: env.ENABLE_AWS_DEPLOY == 'true'
     permissions:
       id-token: write  # allows creation of an OIDC token
     runs-on: ubuntu-latest
@@ -63,9 +71,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Set image URI
-        run: echo "IMAGE_URI=${{ needs.build.outputs.image }}" >> $GITHUB_ENV
 
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v4
@@ -96,13 +101,13 @@ jobs:
           sudo mv kubectl /usr/local/bin/
           kubectl version
 
+      - name: Set image URI
+        run: echo "IMAGE_URI=${{ needs.build.outputs.image }}" >> $GITHUB_ENV
+
       - name: Replace environment variables in Kubernetes manifest
         run: |
-          export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
-          export AWS_REGION=${{ secrets.AWS_REGION }}
-          export ECR_REPOSITORY=${{ secrets.ECR_REPOSITORY }}
-          export IMAGE_TAG=latest
-          envsubst < k8s/deployment.yaml | tee k8s/deployment-resolved.yaml
+         export IMAGE_URI=${IMAGE_URI}
+         envsubst < k8s/deployment.yaml | tee k8s/deployment-resolved.yaml
 
       - name: Deploy Deployment
         run: kubectl apply --validate=false -f k8s/deployment-resolved.yaml
@@ -118,3 +123,64 @@ jobs:
       - name: Available at
         run: |
           kubectl get service marco-nico-service -n default
+
+  azure_deploy:
+    needs: build
+    if: env.ENABLE_AZURE_DEPLOY == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Authenticate with Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set context for AKS
+        uses: azure/aks-set-context@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
+          kubectl version
+
+      - name: Set image URI
+        run: echo "IMAGE_URI=${{ needs.build.outputs.image }}" >> $GITHUB_ENV
+
+      - name: Set ECR login password
+        run: echo "ECR_LOGIN_PASSWORD=${{ needs.build.outputs.ecr-login-password }}" >> $GITHUB_ENV
+
+      - name: Create Kubernetes secret for ECR
+        run: |
+          kubectl create secret docker-registry ecr-secret \
+          --docker-server=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com \
+          --docker-username=AWS \
+          --docker-password=${{ env.ECR_LOGIN_PASSWORD }} \
+          --docker-email=noreply@noreply.com
+
+      - name: Replace environment variables in Kubernetes manifest
+        run: |
+          export IMAGE_URI=${IMAGE_URI}
+          envsubst < k8s/deployment.yaml | tee k8s/deployment-resolved.yaml
+
+      - name: Deploy Deployment
+        run: kubectl apply --validate=false -f k8s/deployment-resolved.yaml
+
+      - name: Deploy Service
+        run: kubectl apply --validate=false -f k8s/service.yaml
+
+      - name: Check Installation
+        run: |
+          kubectl get pods -l app=marco-nico-app
+          kubectl describe deployment marco-nico
+
+      - name: Available at
+        run: kubectl get service marco-nico-service -n default

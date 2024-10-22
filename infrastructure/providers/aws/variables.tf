@@ -33,11 +33,6 @@ variable "cluster_version" {
   type        = string
 }
 
-variable "cloud_provider" {
-  description = "Cloud provider name"
-  type        = string
-}
-
 variable "business_unit" {
   description = "Prefix or value to tag resources"
   type        = string

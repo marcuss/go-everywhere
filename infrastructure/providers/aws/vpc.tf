@@ -1,7 +1,3 @@
-provider "aws" {
-  region = var.region
-  # Optionally include profile, access keys, etc.
-}
 
 # Data source to get availability zones dynamically
 data "aws_availability_zones" "available" {}

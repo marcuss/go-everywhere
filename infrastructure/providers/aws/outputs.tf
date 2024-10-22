@@ -1,9 +1,4 @@
 # Outputs for convenience
-output "cloud_provider" {
-  description = "The cloud provider being used"
-  value       = var.cloud_provider
-}
-
 output "region" {
   description = "The AWS region where resources were deployed"
   value       = var.region
